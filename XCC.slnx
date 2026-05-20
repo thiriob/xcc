@@ -1,0 +1,11 @@
+﻿<Solution>
+  <Project Path="XCC.Android/XCC.Android.csproj">
+    <Deploy />
+  </Project>
+  <Project Path="XCC.Browser/XCC.Browser.csproj" />
+  <Project Path="XCC.Desktop/XCC.Desktop.csproj" />
+  <Project Path="XCC.iOS/XCC.iOS.csproj">
+    <Deploy />
+  </Project>
+  <Project Path="XCC/XCC.csproj" />
+</Solution>
