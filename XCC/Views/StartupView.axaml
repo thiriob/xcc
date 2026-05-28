@@ -1,0 +1,111 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:XCC.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="720" d:DesignHeight="1280"
+             x:Class="XCC.Views.StartupView"
+             x:DataType="vm:StartupViewModel"
+             Background="Black">
+
+  <UserControl.Styles>
+    <Style Selector="Button.outlined">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="BorderBrush" Value="White"/>
+      <Setter Property="BorderThickness" Value="1.5"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="FontSize" Value="22"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Button.outlined:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#20FFFFFF"/>
+    </Style>
+    <Style Selector="Button.outlined:pressed /template/ ContentPresenter">
+      <Setter Property="Background" Value="#40FFFFFF"/>
+    </Style>
+    <Style Selector="Button.stepper">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="FontSize" Value="26"/>
+      <Setter Property="Width" Value="60"/>
+      <Setter Property="Height" Value="60"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Button.stepper:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#20FFFFFF"/>
+    </Style>
+    <Style Selector="Button.stepper:pressed /template/ ContentPresenter">
+      <Setter Property="Background" Value="#40FFFFFF"/>
+    </Style>
+  </UserControl.Styles>
+
+  <Design.DataContext>
+    <vm:StartupViewModel/>
+  </Design.DataContext>
+
+  <Grid RowDefinitions="*,Auto">
+
+    <!-- Form fields -->
+    <StackPanel Grid.Row="0"
+                VerticalAlignment="Center"
+                Margin="40,48"
+                Spacing="0">
+
+      <!-- Round Name -->
+      <TextBlock Text="Nom round"
+                 Foreground="White"
+                 FontSize="20"
+                 HorizontalAlignment="Center"
+                 Margin="0,0,0,12"/>
+      <TextBox Text="{Binding RoundName}"
+               HorizontalContentAlignment="Center"
+               FontSize="24"
+               CornerRadius="8"
+               Margin="0,0,0,36"/>
+
+      <!-- Tours stepper -->
+      <TextBlock Text="Nombre Tours"
+                 Foreground="White"
+                 FontSize="20"
+                 HorizontalAlignment="Center"
+                 Margin="0,0,0,12"/>
+      <Border BorderBrush="White"
+              BorderThickness="1.5"
+              CornerRadius="8">
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <Button Grid.Column="0"
+                  Content="-"
+                  Command="{Binding DecrementCommand}"
+                  Classes="stepper"/>
+          <TextBlock Grid.Column="1"
+                     Text="{Binding NombreTours}"
+                     Foreground="White"
+                     FontSize="26"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"/>
+          <Button Grid.Column="2"
+                  Content="+"
+                  Command="{Binding IncrementCommand}"
+                  Classes="stepper"/>
+        </Grid>
+      </Border>
+
+    </StackPanel>
+
+    <!-- Demarrer -->
+    <Button Grid.Row="1"
+            Content="DEMARRER"
+            Command="{Binding DemarrerCommand}"
+            Classes="outlined"
+            HorizontalAlignment="Center"
+            Padding="64,22"
+            LetterSpacing="2"
+            Margin="0,0,0,48"/>
+
+  </Grid>
+
+</UserControl>

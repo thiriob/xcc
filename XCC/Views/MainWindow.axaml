@@ -4,9 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="using:XCC.Views"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="800"
         x:Class="XCC.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-        Title="XCC">
+        Title="XCC"
+        Width="450" Height="800"
+        MinWidth="270" MinHeight="480"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False">
         <views:MainView />
 </Window>

@@ -3,6 +3,7 @@
     "XCC.Browser": {
         "commandName": "Project",
         "launchBrowser": true,
+        "browserExecutable": "C:\\Users\\Thiriob\\AppData\\Local\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
         "environmentVariables": {
           "ASPNETCORE_ENVIRONMENT": "Development"
         },

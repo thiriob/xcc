@@ -4,7 +4,11 @@
     <option name="projectPerEditor">
       <map>
         <entry key="XCC/App.axaml" value="XCC.Desktop/XCC.Desktop.csproj" />
+        <entry key="XCC/Views/EndRoundView.axaml" value="XCC.Desktop/XCC.Desktop.csproj" />
         <entry key="XCC/Views/MainView.axaml" value="XCC.Desktop/XCC.Desktop.csproj" />
+        <entry key="XCC/Views/MainWindow.axaml" value="XCC.Desktop/XCC.Desktop.csproj" />
+        <entry key="XCC/Views/PilotView.axaml" value="XCC.Desktop/XCC.Desktop.csproj" />
+        <entry key="XCC/Views/StartupView.axaml" value="XCC.Desktop/XCC.Desktop.csproj" />
       </map>
     </option>
   </component>

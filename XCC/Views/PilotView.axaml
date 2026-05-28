@@ -1,0 +1,127 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:XCC.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="720" d:DesignHeight="1280"
+             x:Class="XCC.Views.PilotView"
+             x:DataType="vm:PilotViewModel"
+             Background="Black">
+
+  <UserControl.Styles>
+    <Style Selector="Button.keypad">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="FontSize" Value="40"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="VerticalAlignment" Value="Stretch"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Button.keypad:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#20FFFFFF"/>
+    </Style>
+    <Style Selector="Button.keypad:pressed /template/ ContentPresenter">
+      <Setter Property="Background" Value="#40FFFFFF"/>
+    </Style>
+    <Style Selector="Button.action">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="White"/>
+      <Setter Property="BorderBrush" Value="White"/>
+      <Setter Property="BorderThickness" Value="1.5"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="FontSize" Value="22"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="Padding" Value="0,22"/>
+    </Style>
+    <Style Selector="Button.action:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#20FFFFFF"/>
+    </Style>
+    <Style Selector="Button.action:pressed /template/ ContentPresenter">
+      <Setter Property="Background" Value="#40FFFFFF"/>
+    </Style>
+  </UserControl.Styles>
+
+  <Design.DataContext>
+    <vm:PilotViewModel/>
+  </Design.DataContext>
+
+  <Grid RowDefinitions="Auto,Auto,*">
+
+    <!-- Number display -->
+    <Border Grid.Row="0"
+            Margin="16,24,16,16"
+            CornerRadius="16"
+            MinHeight="200"
+            Padding="24,36">
+      <TextBlock Text="{Binding NumeroCourant}"
+                 FontSize="100"
+                 FontWeight="DemiBold"
+                 Foreground="White"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"/>
+    </Border>
+
+    <!-- Separator -->
+    <Rectangle Grid.Row="1" Height="1" Fill="White"/>
+
+    <!-- Keypad panel -->
+    <Grid Grid.Row="2"
+          IsVisible="{Binding IsKeypadMode}"
+          RowDefinitions="*,1,*,1,*,1,*"
+          ColumnDefinitions="*,1,*,1,*">
+
+      <!-- Horizontal separator lines -->
+      <Rectangle Grid.Row="1" Grid.ColumnSpan="5" Fill="White"/>
+      <Rectangle Grid.Row="3" Grid.ColumnSpan="5" Fill="White"/>
+      <Rectangle Grid.Row="5" Grid.ColumnSpan="5" Fill="White"/>
+
+      <!-- Vertical separator lines -->
+      <Rectangle Grid.Column="1" Grid.RowSpan="7" Fill="White"/>
+      <Rectangle Grid.Column="3" Grid.RowSpan="7" Fill="White"/>
+
+      <!-- Digit buttons -->
+      <Button Grid.Row="0" Grid.Column="0" Classes="keypad" Content="1" Command="{Binding AppendDigitCommand}" CommandParameter="1"/>
+      <Button Grid.Row="0" Grid.Column="2" Classes="keypad" Content="2" Command="{Binding AppendDigitCommand}" CommandParameter="2"/>
+      <Button Grid.Row="0" Grid.Column="4" Classes="keypad" Content="3" Command="{Binding AppendDigitCommand}" CommandParameter="3"/>
+      <Button Grid.Row="2" Grid.Column="0" Classes="keypad" Content="4" Command="{Binding AppendDigitCommand}" CommandParameter="4"/>
+      <Button Grid.Row="2" Grid.Column="2" Classes="keypad" Content="5" Command="{Binding AppendDigitCommand}" CommandParameter="5"/>
+      <Button Grid.Row="2" Grid.Column="4" Classes="keypad" Content="6" Command="{Binding AppendDigitCommand}" CommandParameter="6"/>
+      <Button Grid.Row="4" Grid.Column="0" Classes="keypad" Content="7" Command="{Binding AppendDigitCommand}" CommandParameter="7"/>
+      <Button Grid.Row="4" Grid.Column="2" Classes="keypad" Content="8" Command="{Binding AppendDigitCommand}" CommandParameter="8"/>
+      <Button Grid.Row="4" Grid.Column="4" Classes="keypad" Content="9" Command="{Binding AppendDigitCommand}" CommandParameter="9"/>
+      <Button Grid.Row="6" Grid.Column="0" Classes="keypad" Content="✕" Command="{Binding CorrigerCommand}"/>
+      <Button Grid.Row="6" Grid.Column="2" Classes="keypad" Content="0" Command="{Binding AppendDigitCommand}" CommandParameter="0"/>
+      <Button Grid.Row="6" Grid.Column="4" Classes="keypad" Content="✓" Command="{Binding ValiderCommand}"/>
+    </Grid>
+
+    <!-- Infos panel -->
+    <Grid Grid.Row="2"
+          IsVisible="{Binding !IsKeypadMode}"
+          RowDefinitions="*,Auto">
+      <StackPanel Grid.Row="0"
+                  Margin="28,32"
+                  Spacing="24">
+        <TextBlock Foreground="White" FontSize="26"
+                   Text="{Binding NbrToursMax, StringFormat='Nbr tours max : {0}'}"/>
+        <TextBlock Foreground="White" FontSize="26"
+                   Text="{Binding PrecedentNumero, StringFormat='Precedent = {0}'}"/>
+        <TextBlock Foreground="White" FontSize="26"
+                   Text="{Binding ToursDisplay, StringFormat='Tours {0}'}"/>
+        <TextBlock Foreground="White" FontSize="26"
+                   Text="{Binding Position, StringFormat='Position : {0}'}"/>
+      </StackPanel>
+      <Button Grid.Row="1" Classes="action" Content="✓  Valider"
+              Command="{Binding ValiderCommand}"
+              HorizontalAlignment="Center"
+              Padding="72,32"
+              Margin="16,12,16,28"/>
+    </Grid>
+
+
+  </Grid>
+
+</UserControl>
