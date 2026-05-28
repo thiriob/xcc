@@ -49,13 +49,12 @@
     <vm:PilotViewModel/>
   </Design.DataContext>
 
-  <Grid RowDefinitions="Auto,Auto,*">
+  <Grid RowDefinitions="3*,Auto,8*">
 
     <!-- Number display -->
     <Border Grid.Row="0"
             Margin="16,24,16,16"
             CornerRadius="16"
-            MinHeight="200"
             Padding="24,36">
       <TextBlock Text="{Binding NumeroCourant}"
                  FontSize="100"

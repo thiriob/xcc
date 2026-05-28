@@ -13,7 +13,11 @@
     <vm:MainViewModel />
   </Design.DataContext>
 
-  <ContentControl Content="{Binding CurrentViewModel}"
-                  HorizontalContentAlignment="Stretch"
-                  VerticalContentAlignment="Stretch"/>
+  <Grid ColumnDefinitions="*,Auto,*">
+    <ContentControl Grid.Column="1"
+                    x:Name="ContentArea"
+                    Content="{Binding CurrentViewModel}"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch"/>
+  </Grid>
 </UserControl>
