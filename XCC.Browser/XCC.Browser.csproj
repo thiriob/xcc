@@ -4,7 +4,7 @@
         <OutputType>Exe</OutputType>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Nullable>enable</Nullable>
-<!--        <WasmNativeStrip>false</WasmNativeStrip>-->
+        <WasmNativeStrip>false</WasmNativeStrip>
     </PropertyGroup>
 
     <ItemGroup>
