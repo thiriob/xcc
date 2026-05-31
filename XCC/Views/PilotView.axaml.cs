@@ -29,6 +29,7 @@ public partial class PilotView : UserControl
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
         if (DataContext is not PilotViewModel vm) return;
+        if (vm.IsConfirmingEnd) return;
 
         switch (e.Key)
         {

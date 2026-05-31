@@ -43,6 +43,33 @@
     <Style Selector="Button.action:pressed /template/ ContentPresenter">
       <Setter Property="Background" Value="#40FFFFFF"/>
     </Style>
+    <!-- OUI confirmation button — overrides .action colors -->
+    <Style Selector="Button.action.danger">
+      <Setter Property="BorderBrush" Value="#FF4444"/>
+      <Setter Property="Foreground" Value="#FF6666"/>
+    </Style>
+    <Style Selector="Button.action.danger:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#33FF2222"/>
+    </Style>
+    <Style Selector="Button.action.danger:pressed /template/ ContentPresenter">
+      <Setter Property="Background" Value="#55FF2222"/>
+    </Style>
+    <!-- Small "Finir le round" button -->
+    <Style Selector="Button.finir">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="#CC7744"/>
+      <Setter Property="BorderBrush" Value="#CC7744"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="6"/>
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="Padding" Value="12,6"/>
+    </Style>
+    <Style Selector="Button.finir:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#20CC7744"/>
+    </Style>
+    <Style Selector="Button.finir:pressed /template/ ContentPresenter">
+      <Setter Property="Background" Value="#40CC7744"/>
+    </Style>
   </UserControl.Styles>
 
   <Design.DataContext>
@@ -51,8 +78,9 @@
 
   <Grid RowDefinitions="3*,Auto,8*">
 
-    <!-- Number display -->
+    <!-- Number display — background changes with urgency -->
     <Border Grid.Row="0"
+            Background="{Binding NumberBackground}"
             Margin="16,24,16,16"
             CornerRadius="16"
             Padding="24,36">
@@ -73,16 +101,12 @@
           RowDefinitions="*,1,*,1,*,1,*"
           ColumnDefinitions="*,1,*,1,*">
 
-      <!-- Horizontal separator lines -->
       <Rectangle Grid.Row="1" Grid.ColumnSpan="5" Fill="White"/>
       <Rectangle Grid.Row="3" Grid.ColumnSpan="5" Fill="White"/>
       <Rectangle Grid.Row="5" Grid.ColumnSpan="5" Fill="White"/>
-
-      <!-- Vertical separator lines -->
       <Rectangle Grid.Column="1" Grid.RowSpan="7" Fill="White"/>
       <Rectangle Grid.Column="3" Grid.RowSpan="7" Fill="White"/>
 
-      <!-- Digit buttons -->
       <Button Grid.Row="0" Grid.Column="0" Classes="keypad" Content="1" Command="{Binding AppendDigitCommand}" CommandParameter="1"/>
       <Button Grid.Row="0" Grid.Column="2" Classes="keypad" Content="2" Command="{Binding AppendDigitCommand}" CommandParameter="2"/>
       <Button Grid.Row="0" Grid.Column="4" Classes="keypad" Content="3" Command="{Binding AppendDigitCommand}" CommandParameter="3"/>
@@ -100,26 +124,94 @@
     <!-- Infos panel -->
     <Grid Grid.Row="2"
           IsVisible="{Binding !IsKeypadMode}"
-          RowDefinitions="*,Auto">
-      <StackPanel Grid.Row="0"
-                  Margin="28,32"
-                  Spacing="24">
-        <TextBlock Foreground="White" FontSize="26"
-                   Text="{Binding NbrToursMax, StringFormat='Nbr tours max : {0}'}"/>
-        <TextBlock Foreground="White" FontSize="26"
-                   Text="{Binding PrecedentNumero, StringFormat='Precedent = {0}'}"/>
-        <TextBlock Foreground="White" FontSize="26"
-                   Text="{Binding ToursDisplay, StringFormat='Tours {0}'}"/>
-        <TextBlock Foreground="White" FontSize="26"
-                   Text="{Binding Position, StringFormat='Position : {0}'}"/>
-      </StackPanel>
-      <Button Grid.Row="1" Classes="action" Content="✓  Valider"
+          RowDefinitions="Auto,2*,Auto,Auto,*,Auto">
+
+      <!-- Small "Finir le round" button — top right, small to avoid accidental press -->
+      <Button Grid.Row="0"
+              Classes="finir"
+              Content="Finir le round"
+              Command="{Binding FinirRoundCommand}"
+              HorizontalAlignment="Right"
+              Margin="0,12,16,0"/>
+
+      <!-- Status line — biggest, most visible, color-coded by urgency -->
+      <TextBlock Grid.Row="1"
+                 Text="{Binding StatusText}"
+                 Foreground="{Binding StatusColor}"
+                 FontSize="52"
+                 FontWeight="Bold"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 TextAlignment="Center"
+                 TextWrapping="Wrap"
+                 Margin="16,0"/>
+
+      <!-- Timers row -->
+      <Grid Grid.Row="2" ColumnDefinitions="*,1,*" Margin="0,0,0,12">
+        <Rectangle Grid.Column="1" Fill="#40FFFFFF"/>
+        <StackPanel Grid.Column="0" HorizontalAlignment="Center" Spacing="3" Margin="0,8">
+          <TextBlock Text="Chrono round" Foreground="#80FFFFFF" FontSize="13" HorizontalAlignment="Center"/>
+          <TextBlock Text="{Binding RoundTimerDisplay}" Foreground="White" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center"/>
+        </StackPanel>
+        <StackPanel Grid.Column="2" HorizontalAlignment="Center" Spacing="3" Margin="0,8">
+          <TextBlock Text="Tour pilote" Foreground="#80FFFFFF" FontSize="13" HorizontalAlignment="Center"/>
+          <TextBlock Text="{Binding PilotLapTimerDisplay}" Foreground="White" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center"/>
+        </StackPanel>
+      </Grid>
+
+      <!-- Position / Tour row -->
+      <Grid Grid.Row="3" ColumnDefinitions="*,1,*" Margin="0,0,0,8">
+        <Rectangle Grid.Column="1" Fill="#40FFFFFF"/>
+        <StackPanel Grid.Column="0" HorizontalAlignment="Center" Spacing="2" Margin="0,8">
+          <TextBlock Text="Position" Foreground="#80FFFFFF" FontSize="13" HorizontalAlignment="Center"/>
+          <TextBlock Text="{Binding Position}" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center"/>
+        </StackPanel>
+        <StackPanel Grid.Column="2" HorizontalAlignment="Center" Spacing="2" Margin="0,8">
+          <TextBlock Text="Tour" Foreground="#80FFFFFF" FontSize="13" HorizontalAlignment="Center"/>
+          <TextBlock Text="{Binding ToursDisplay}" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center"/>
+        </StackPanel>
+      </Grid>
+
+      <!-- Spacer -->
+      <!-- row 4 fills remaining space -->
+
+      <!-- Valider button -->
+      <Button Grid.Row="5" Classes="action" Content="✓  Valider"
               Command="{Binding ValiderCommand}"
               HorizontalAlignment="Center"
               Padding="72,32"
               Margin="16,12,16,28"/>
     </Grid>
 
+    <!-- Confirmation overlay — covers full view, last in Grid so it renders on top -->
+    <Border Grid.Row="0" Grid.RowSpan="3"
+            Background="#CC000000"
+            IsVisible="{Binding IsConfirmingEnd}">
+      <Border Background="#1C1C1C"
+              CornerRadius="16"
+              Padding="36,32"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              MinWidth="320">
+        <StackPanel Spacing="28">
+          <TextBlock Text="Finir le round ?"
+                     Foreground="White"
+                     FontSize="28"
+                     FontWeight="Bold"
+                     HorizontalAlignment="Center"/>
+          <Grid ColumnDefinitions="*,16,*">
+            <Button Grid.Column="0"
+                    Classes="action"
+                    Content="NON"
+                    Command="{Binding AnnulerFinCommand}"/>
+            <Button Grid.Column="2"
+                    Classes="action danger"
+                    Content="OUI"
+                    Command="{Binding ConfirmerFinCommand}"/>
+          </Grid>
+        </StackPanel>
+      </Border>
+    </Border>
 
   </Grid>
 

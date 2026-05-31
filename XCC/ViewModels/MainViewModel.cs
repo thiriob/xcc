@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using XCC.Models;
 
 namespace XCC.ViewModels;
 
@@ -13,8 +14,9 @@ public partial class MainViewModel : ViewModelBase
 
     private void GoToPilotView(string roundName, int nbrTours)
     {
-        CurrentViewModel = new PilotViewModel(roundName, nbrTours, () =>
-            CurrentViewModel = new EndRoundViewModel(0, nbrTours, nbrTours, System.TimeSpan.Zero, Reset));
+        var session = new RaceSession(roundName, nbrTours);
+        CurrentViewModel = new PilotViewModel(roundName, nbrTours, session, () =>
+            CurrentViewModel = new EndRoundViewModel(session, Reset));
     }
 
     private void Reset()

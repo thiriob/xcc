@@ -36,18 +36,93 @@
 
   <Grid RowDefinitions="*,Auto">
 
-    <!-- Stats -->
-    <StackPanel Grid.Row="0"
-                VerticalAlignment="Top"
-                Margin="40,48"
-                Spacing="16">
-      <TextBlock Text="{Binding NombrePilotesDisplay}"
-                 Foreground="White" FontSize="26"/>
-      <TextBlock Text="{Binding ToursDisplay}"
-                 Foreground="White" FontSize="26"/>
-      <TextBlock Text="{Binding TempsTotalDisplay}"
-                 Foreground="White" FontSize="26"/>
-    </StackPanel>
+    <ScrollViewer Grid.Row="0">
+      <StackPanel Margin="40,48,40,24" Spacing="0">
+
+        <!-- Round name -->
+        <TextBlock Text="{Binding RoundName}"
+                   Foreground="#80FFFFFF"
+                   FontSize="16"
+                   LetterSpacing="1"
+                   Margin="0,0,0,4"/>
+
+        <TextBlock Text="Round terminé"
+                   Foreground="White"
+                   FontSize="36"
+                   FontWeight="Bold"
+                   Margin="0,0,0,32"/>
+
+        <!-- Stats -->
+        <TextBlock Text="{Binding HeureFinDisplay}" Foreground="White" FontSize="22" Margin="0,0,0,8"/>
+        <TextBlock Text="{Binding TempsTotalDisplay}" Foreground="White" FontSize="22" Margin="0,0,0,8"/>
+        <TextBlock Text="{Binding NombrePilotesDisplay}" Foreground="White" FontSize="22" Margin="0,0,0,8"/>
+        <TextBlock Text="{Binding ToursDisplay}" Foreground="White" FontSize="22" Margin="0,0,0,36"/>
+
+        <!-- Podium separator -->
+        <Rectangle Height="1" Fill="#40FFFFFF" Margin="0,0,0,24"/>
+
+        <TextBlock Text="PODIUM"
+                   Foreground="#80FFFFFF"
+                   FontSize="13"
+                   LetterSpacing="2"
+                   Margin="0,0,0,16"/>
+
+        <!-- 1st place -->
+        <Grid ColumnDefinitions="Auto,16,*" Margin="0,0,0,12">
+          <TextBlock Grid.Column="0"
+                     Text="1"
+                     Foreground="#FFD700"
+                     FontSize="48"
+                     FontWeight="Bold"
+                     VerticalAlignment="Center"
+                     Width="48"
+                     TextAlignment="Center"/>
+          <TextBlock Grid.Column="2"
+                     Text="{Binding Top1Display}"
+                     Foreground="#FFD700"
+                     FontSize="48"
+                     FontWeight="Bold"
+                     VerticalAlignment="Center"/>
+        </Grid>
+
+        <!-- 2nd place -->
+        <Grid ColumnDefinitions="Auto,16,*" Margin="0,0,0,12">
+          <TextBlock Grid.Column="0"
+                     Text="2"
+                     Foreground="#C0C0C0"
+                     FontSize="38"
+                     FontWeight="Bold"
+                     VerticalAlignment="Center"
+                     Width="48"
+                     TextAlignment="Center"/>
+          <TextBlock Grid.Column="2"
+                     Text="{Binding Top2Display}"
+                     Foreground="#C0C0C0"
+                     FontSize="38"
+                     FontWeight="Bold"
+                     VerticalAlignment="Center"/>
+        </Grid>
+
+        <!-- 3rd place -->
+        <Grid ColumnDefinitions="Auto,16,*" Margin="0,0,0,0">
+          <TextBlock Grid.Column="0"
+                     Text="3"
+                     Foreground="#CD7F32"
+                     FontSize="30"
+                     FontWeight="Bold"
+                     VerticalAlignment="Center"
+                     Width="48"
+                     TextAlignment="Center"/>
+          <TextBlock Grid.Column="2"
+                     Text="{Binding Top3Display}"
+                     Foreground="#CD7F32"
+                     FontSize="30"
+                     FontWeight="Bold"
+                     VerticalAlignment="Center"/>
+        </Grid>
+
+      </StackPanel>
+    </ScrollViewer>
 
     <!-- Actions -->
     <StackPanel Grid.Row="1"
@@ -56,15 +131,9 @@
       <Button Content="EXPORTER"
               Command="{Binding ExporterCommand}"
               Classes="outlined"/>
-      <Button Classes="outlined"
-              Command="{Binding NouveauRoundCommand}">
-        <TextBlock Text="NOUVEAU ROUND"
-                   TextAlignment="Center"
-                   Foreground="White"
-                   FontSize="22"
-                   FontWeight="Bold"
-                   LetterSpacing="1"/>
-      </Button>
+      <Button Content="NOUVEAU ROUND"
+              Command="{Binding NouveauRoundCommand}"
+              Classes="outlined"/>
     </StackPanel>
 
   </Grid>
