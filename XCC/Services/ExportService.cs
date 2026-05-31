@@ -39,9 +39,12 @@ public static class ExportService
     {
         var ws = wb.AddWorksheet("Résultats");
 
-        var standings = ComputeStandings(session);
-        int N = standings.Count;
+        int N = session.Entries.Select(e => e.PilotNumber).Distinct().Count();
         int M = session.Entries.Count;
+
+        // Classement always reserves 30 rows so historique sits at a fixed offset,
+        // and all pilot/rank cells are driven by formulas referencing the history.
+        const int MaxClassementRows = 30;
 
         // ── Row layout ───────────────────────────────────────────────────────
         const int titleRow     = 1;
@@ -49,11 +52,11 @@ public static class ExportService
         const int durRow       = 3;
         const int secResRow    = 5;
         const int resHeaderRow = 6;
-        int resDataStart       = 7;
-        int resDataEnd         = resDataStart + Math.Max(N - 1, 0);
-        int secHistRow         = resDataEnd + 2;
-        int histHeaderRow      = secHistRow + 1;
-        int histDataStart      = histHeaderRow + 1;
+        const int resDataStart = 7;
+        const int resDataEnd   = resDataStart + MaxClassementRows - 1; // row 36
+        const int secHistRow   = resDataEnd + 2;                       // row 38
+        const int histHeaderRow = secHistRow + 1;                      // row 39
+        const int histDataStart = histHeaderRow + 1;                   // row 40
         int histDataEnd        = histDataStart + M - 1;
 
         // ── Title block ──────────────────────────────────────────────────────
@@ -79,27 +82,43 @@ public static class ExportService
         ws.Cell(resHeaderRow, 4).Value = "DERNIER PASSAGE";
         StyleHeader(ws.Range(resHeaderRow, 1, resHeaderRow, 4));
 
-        for (int i = 0; i < N; i++)
+        // All 30 rows are formula-driven. Pilot numbers come from the history's last
+        // turn via COUNTIFS rank matching so correcting any history cell propagates
+        // automatically to the classement.
+        for (int i = 0; i < MaxClassementRows; i++)
         {
             int row = resDataStart + i;
-            ws.Cell(row, 1).Value = i + 1;
-            SetPilot(ws.Cell(row, 2), standings[i].PilotNumber);
+            int k   = i + 1; // 1-based rank
 
             if (M > 0)
             {
-                // SUMPRODUCT(MAX(...)) forces array evaluation without dynamic-array
-                // functions, so ClosedXML never adds the @ implicit-intersection prefix.
+                // Position: blank when no pilot at this rank
+                ws.Cell(row, 1).FormulaA1 = $"IF(B{row}=\"\",\"\",{k})";
 
-                // Tours: max turn in history for this pilot (col C = tour)
+                // Pilot: kth pilot to finish the last turn (ascending by timestamp).
+                // COUNTIFS counts, for each history row, how many last-turn entries
+                // finished at or before that row's time — giving each row its rank.
+                // SUMPRODUCT then picks the pilot whose rank equals k.
+                // Uses only SUMPRODUCT/COUNTIFS so ClosedXML never inserts @.
+                ws.Cell(row, 2).FormulaA1 =
+                    $"IFERROR(SUMPRODUCT(" +
+                    $"($C${histDataStart}:$C${histDataEnd}=MAX($C${histDataStart}:$C${histDataEnd}))" +
+                    $"*(COUNTIFS($C${histDataStart}:$C${histDataEnd},MAX($C${histDataStart}:$C${histDataEnd})," +
+                    $"$B${histDataStart}:$B${histDataEnd},\"<=\"&$B${histDataStart}:$B${histDataEnd})={k})" +
+                    $"*$A${histDataStart}:$A${histDataEnd}),\"\")";
+
+                // Tours: max turn reached by this pilot
                 ws.Cell(row, 3).FormulaA1 =
-                    $"IFERROR(SUMPRODUCT(MAX(($A${histDataStart}:$A${histDataEnd}=B{row})" +
-                    $"*$C${histDataStart}:$C${histDataEnd})),0)";
+                    $"IF(B{row}=\"\",\"\",IFERROR(SUMPRODUCT(MAX(" +
+                    $"($A${histDataStart}:$A${histDataEnd}=B{row})" +
+                    $"*$C${histDataStart}:$C${histDataEnd})),0))";
 
-                // Dernier passage: latest timestamp for this pilot at their max turn (col B = heure)
+                // Dernier passage: latest timestamp for this pilot at their max turn
                 ws.Cell(row, 4).FormulaA1 =
-                    $"SUMPRODUCT(MAX(($A${histDataStart}:$A${histDataEnd}=B{row})" +
+                    $"IF(B{row}=\"\",\"\",SUMPRODUCT(MAX(" +
+                    $"($A${histDataStart}:$A${histDataEnd}=B{row})" +
                     $"*($C${histDataStart}:$C${histDataEnd}=C{row})" +
-                    $"*$B${histDataStart}:$B${histDataEnd}))";
+                    $"*$B${histDataStart}:$B${histDataEnd})))";
                 ws.Cell(row, 4).Style.NumberFormat.Format = "HH:mm:ss";
             }
 
@@ -188,21 +207,6 @@ public static class ExportService
         range.Style.Fill.BackgroundColor = HeaderBg;
         range.Style.Font.FontColor = XLColor.White;
     }
-
-    private record Standing(string PilotNumber, int MaxTurn, DateTime LastTimestamp);
-
-    private static List<Standing> ComputeStandings(RaceSession session) =>
-        session.Entries
-            .GroupBy(e => e.PilotNumber)
-            .Select(g =>
-            {
-                var maxTurn = g.Max(e => e.Turn);
-                var last = g.Where(e => e.Turn == maxTurn).Max(e => e.Timestamp);
-                return new Standing(g.Key, maxTurn, last);
-            })
-            .OrderByDescending(s => s.MaxTurn)
-            .ThenBy(s => s.LastTimestamp)
-            .ToList();
 
     private static void SetPilot(IXLCell cell, string pilotNumber)
     {
