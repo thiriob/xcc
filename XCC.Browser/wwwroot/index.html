@@ -30,6 +30,16 @@
         </h2>
     </div>
 </div>
+<script>
+function xccDownload(filename, csvContent) {
+    const a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+</script>
 <script type='module' src="./main.js"></script>
 </body>
 

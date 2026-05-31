@@ -1,6 +1,4 @@
 using System;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -62,12 +60,16 @@ public partial class EndRoundViewModel : ViewModelBase
     [RelayCommand]
     private async Task Exporter()
     {
+        if (ExportProvider.Handler is null)
+        {
+            ExportStatus = "Export non disponible sur cette plateforme";
+            return;
+        }
         ExportStatus = "Export en cours...";
         try
         {
-            var path = await Task.Run(() => ExportService.Export(_session));
-            ExportStatus = Path.GetFileName(path);
-            Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+            var result = await ExportProvider.Handler(_session);
+            ExportStatus = result ?? "Exporté";
         }
         catch (Exception ex)
         {
