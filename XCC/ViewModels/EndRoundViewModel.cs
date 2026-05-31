@@ -1,12 +1,19 @@
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using XCC.Models;
+using XCC.Services;
 
 namespace XCC.ViewModels;
 
 public partial class EndRoundViewModel : ViewModelBase
 {
+    [ObservableProperty] private string _exportStatus = "";
+
     public string RoundName { get; }
     public string HeureFinDisplay { get; }
     public string NombrePilotesDisplay { get; }
@@ -53,7 +60,20 @@ public partial class EndRoundViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void Exporter() { } // TODO: export session entries as CSV
+    private async Task Exporter()
+    {
+        ExportStatus = "Export en cours...";
+        try
+        {
+            var path = await Task.Run(() => ExportService.Export(_session));
+            ExportStatus = Path.GetFileName(path);
+            Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            ExportStatus = $"Erreur : {ex.Message}";
+        }
+    }
 
     [RelayCommand]
     private void NouveauRound() => _onNouveauRound();

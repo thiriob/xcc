@@ -127,10 +127,15 @@
     <!-- Actions -->
     <StackPanel Grid.Row="1"
                 Margin="40,0,40,48"
-                Spacing="16">
+                Spacing="12">
       <Button Content="EXPORTER"
               Command="{Binding ExporterCommand}"
               Classes="outlined"/>
+      <TextBlock Text="{Binding ExportStatus}"
+                 Foreground="#80FFFFFF"
+                 FontSize="13"
+                 HorizontalAlignment="Center"
+                 IsVisible="{Binding ExportStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
       <Button Content="NOUVEAU ROUND"
               Command="{Binding NouveauRoundCommand}"
               Classes="outlined"/>
