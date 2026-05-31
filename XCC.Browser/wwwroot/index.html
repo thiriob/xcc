@@ -31,13 +31,18 @@
     </div>
 </div>
 <script>
-function xccDownload(filename, csvContent) {
+function xccDownloadXlsx(filename, bytes) {
+    const blob = new Blob([bytes], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
+    a.href = url;
     a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 </script>
 <script type='module' src="./main.js"></script>
