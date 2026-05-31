@@ -10,7 +10,7 @@ namespace XCC.ViewModels;
 
 public partial class PilotViewModel : ViewModelBase
 {
-    [ObservableProperty] private string _numeroCourant = "";
+    [ObservableProperty] private string _currentNumber = "";
     [ObservableProperty] private bool _isKeypadMode = true;
     [ObservableProperty] private string _precedentNumero = "-";
     [ObservableProperty] private bool _isConfirmingEnd;
@@ -83,7 +83,7 @@ public partial class PilotViewModel : ViewModelBase
 
     public PilotViewModel() : this("U15-Qualif-1", 10, new RaceSession("U15-Qualif-1", 10), () => { })
     {
-        _numeroCourant = "4567";
+        _currentNumber = "4567";
         _toursActuels = 9; // DERNIER TOUR for design preview
         _position = 3;
         _precedentNumero = "1234";
@@ -96,17 +96,12 @@ public partial class PilotViewModel : ViewModelBase
     {
         var elapsed = DateTime.Now - _session.StartTime;
         RoundTimerDisplay = $"{(int)elapsed.TotalMinutes:D2}:{elapsed.Seconds:D2}";
-        if (!IsKeypadMode)
-        {
-            var lap = DateTime.Now - _currentPilotLapStart;
-            PilotLapTimerDisplay = $"{(int)lap.TotalMinutes:D2}:{lap.Seconds:D2}";
-        }
     }
 
     [RelayCommand]
     private void AppendDigit(string digit)
     {
-        if (NumeroCourant.Length < 6) NumeroCourant += digit;
+        if (CurrentNumber.Length < 6) CurrentNumber += digit;
     }
 
     [RelayCommand]
@@ -114,8 +109,8 @@ public partial class PilotViewModel : ViewModelBase
     {
         if (IsKeypadMode)
         {
-            if (string.IsNullOrEmpty(NumeroCourant)) return;
-            var lastEntry = _session.Entries.LastOrDefault(e => e.PilotNumber == NumeroCourant);
+            if (string.IsNullOrEmpty(CurrentNumber)) return; 
+            var lastEntry = _session.Entries.LastOrDefault(e => e.PilotNumber == CurrentNumber);
             _currentPilotLapStart = lastEntry?.Timestamp ?? _session.StartTime;
             var lap = DateTime.Now - _currentPilotLapStart;
             PilotLapTimerDisplay = $"{(int)lap.TotalMinutes:D2}:{lap.Seconds:D2}";
@@ -124,10 +119,10 @@ public partial class PilotViewModel : ViewModelBase
         }
         else
         {
-            _session.AddEntry(NumeroCourant, ToursActuels);
-            PrecedentNumero = NumeroCourant;
-            NumeroCourant = "";
+            PrecedentNumero = CurrentNumber;
+            CurrentNumber = "";
             IsKeypadMode = true;
+            _session.AddEntry(CurrentNumber, ToursActuels);
         }
     }
 
@@ -136,8 +131,8 @@ public partial class PilotViewModel : ViewModelBase
     {
         if (!IsKeypadMode)
             IsKeypadMode = true;
-        else if (NumeroCourant.Length > 0)
-            NumeroCourant = NumeroCourant[..^1];
+        else if (CurrentNumber.Length > 0)
+            CurrentNumber = CurrentNumber[..^1];
     }
 
     [RelayCommand]
