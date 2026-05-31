@@ -1,28 +1,30 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace XCC.Models;
 
-public class RaceSession
+public class RaceSession(string roundName, int turnsMax, DateTime? startTime = null)
 {
-    public string RoundName { get; }
-    public int TurnsMax { get; }
-    public DateTime StartTime { get; }
+    public string RoundName { get; } = roundName;
+    public int TurnsMax { get; } = turnsMax;
+    public DateTime StartTime { get; } = startTime ?? DateTime.Now;
     public DateTime? FinishTime { get; private set; }
     public TimeSpan Elapsed => (FinishTime ?? DateTime.Now) - StartTime;
 
     private readonly List<PilotEntry> _entries = [];
     public IReadOnlyList<PilotEntry> Entries => _entries.AsReadOnly();
 
-    public RaceSession(string roundName, int turnsMax, DateTime? startTime = null)
+    public PilotEntry AddEntry(string pilotNumber, int turn)
     {
-        RoundName = roundName;
-        TurnsMax = turnsMax;
-        StartTime = startTime ?? DateTime.Now;
+        var entry = new PilotEntry(pilotNumber, DateTime.Now, turn);
+        _entries.Add(entry);
+        return entry;
     }
 
-    public void AddEntry(string pilotNumber, int turn)
-        => _entries.Add(new PilotEntry(pilotNumber, DateTime.Now, turn));
+    public PilotEntry GetPreviousEntry(string pilotNumber)
+        => _entries.LastOrDefault(e => e.PilotNumber == pilotNumber)
+           ?? new PilotEntry("", StartTime, 0);
 
     public void Finish() => FinishTime = DateTime.Now;
 }

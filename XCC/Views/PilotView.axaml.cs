@@ -43,8 +43,8 @@ public partial class PilotView : UserControl
             case Key.D7 or Key.NumPad7: vm.AppendDigitCommand.Execute("7"); break;
             case Key.D8 or Key.NumPad8: vm.AppendDigitCommand.Execute("8"); break;
             case Key.D9 or Key.NumPad9: vm.AppendDigitCommand.Execute("9"); break;
-            case Key.Back:              vm.CorrigerCommand.Execute(null);   break;
-            case Key.Enter:             vm.ValiderCommand.Execute(null);    break;
+            case Key.Back: vm.CorrectCommand.Execute(null); break;
+            case Key.Enter: vm.ValidateCommand.Execute(null); break;
             default: return;
         }
 

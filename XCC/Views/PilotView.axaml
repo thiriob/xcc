@@ -116,9 +116,9 @@
       <Button Grid.Row="4" Grid.Column="0" Classes="keypad" Content="7" Command="{Binding AppendDigitCommand}" CommandParameter="7"/>
       <Button Grid.Row="4" Grid.Column="2" Classes="keypad" Content="8" Command="{Binding AppendDigitCommand}" CommandParameter="8"/>
       <Button Grid.Row="4" Grid.Column="4" Classes="keypad" Content="9" Command="{Binding AppendDigitCommand}" CommandParameter="9"/>
-      <Button Grid.Row="6" Grid.Column="0" Classes="keypad" Content="✕" Command="{Binding CorrigerCommand}"/>
+      <Button Grid.Row="6" Grid.Column="0" Classes="keypad" Content="✕" Command="{Binding CorrectCommand}"/>
       <Button Grid.Row="6" Grid.Column="2" Classes="keypad" Content="0" Command="{Binding AppendDigitCommand}" CommandParameter="0"/>
-      <Button Grid.Row="6" Grid.Column="4" Classes="keypad" Content="✓" Command="{Binding ValiderCommand}"/>
+      <Button Grid.Row="6" Grid.Column="4" Classes="keypad" Content="✓" Command="{Binding ValidateCommand}"/>
     </Grid>
 
     <!-- Infos panel -->
@@ -130,7 +130,7 @@
       <Button Grid.Row="0"
               Classes="finir"
               Content="Finir le round"
-              Command="{Binding FinirRoundCommand}"
+              Command="{Binding FinishRoundCommand}"
               HorizontalAlignment="Right"
               Margin="0,12,16,0"/>
 
@@ -154,7 +154,7 @@
           <TextBlock Text="{Binding RoundTimerDisplay}" Foreground="White" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center"/>
         </StackPanel>
         <StackPanel Grid.Column="2" HorizontalAlignment="Center" Spacing="3" Margin="0,8">
-          <TextBlock Text="Tour pilote" Foreground="#80FFFFFF" FontSize="13" HorizontalAlignment="Center"/>
+          <TextBlock Text="Temps au tour" Foreground="#80FFFFFF" FontSize="13" HorizontalAlignment="Center"/>
           <TextBlock Text="{Binding PilotLapTimerDisplay}" Foreground="White" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center"/>
         </StackPanel>
       </Grid>
@@ -177,7 +177,7 @@
 
       <!-- Valider button -->
       <Button Grid.Row="5" Classes="action" Content="✓  Valider"
-              Command="{Binding ValiderCommand}"
+              Command="{Binding ValidateCommand}"
               HorizontalAlignment="Center"
               Padding="72,32"
               Margin="16,12,16,28"/>
@@ -203,11 +203,11 @@
             <Button Grid.Column="0"
                     Classes="action"
                     Content="NON"
-                    Command="{Binding AnnulerFinCommand}"/>
+                    Command="{Binding CancelFinishCommand}"/>
             <Button Grid.Column="2"
                     Classes="action danger"
                     Content="OUI"
-                    Command="{Binding ConfirmerFinCommand}"/>
+                    Command="{Binding ConfirmFinishCommand}"/>
           </Grid>
         </StackPanel>
       </Border>

@@ -12,7 +12,6 @@ public partial class PilotViewModel : ViewModelBase
 {
     [ObservableProperty] private string _currentNumber = "";
     [ObservableProperty] private bool _isKeypadMode = true;
-    [ObservableProperty] private string _precedentNumero = "-";
     [ObservableProperty] private bool _isConfirmingEnd;
 
     [ObservableProperty]
@@ -20,21 +19,20 @@ public partial class PilotViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(StatusText))]
     [NotifyPropertyChangedFor(nameof(StatusColor))]
     [NotifyPropertyChangedFor(nameof(NumberBackground))]
-    private int _toursActuels = 1;
+    private int _currentTurns = 1;
 
     [ObservableProperty] private int _position = 1;
     [ObservableProperty] private string _roundTimerDisplay = "00:00";
     [ObservableProperty] private string _pilotLapTimerDisplay = "00:00";
 
-    public string RoundName { get; }
-    public int NbrToursMax { get; }
-    public string ToursDisplay => $"{ToursActuels}/{NbrToursMax}";
+    private int NbrToursMax { get; }
+    public string ToursDisplay => $"{CurrentTurns}/{NbrToursMax}";
 
     public string StatusText
     {
         get
         {
-            var left = NbrToursMax - ToursActuels;
+            var left = NbrToursMax - CurrentTurns;
             if (left <= 0) return "FINI";
             if (left == 1) return "DERNIER TOUR";
             return $"{left} TOURS RESTANTS";
@@ -45,7 +43,7 @@ public partial class PilotViewModel : ViewModelBase
     {
         get
         {
-            var left = NbrToursMax - ToursActuels;
+            var left = NbrToursMax - CurrentTurns;
             if (left <= 0) return Brushes.Red;
             if (left == 1) return new SolidColorBrush(Color.Parse("#FF8C00"));
             return Brushes.White;
@@ -56,7 +54,7 @@ public partial class PilotViewModel : ViewModelBase
     {
         get
         {
-            var left = NbrToursMax - ToursActuels;
+            var left = NbrToursMax - CurrentTurns;
             if (left <= 0) return new SolidColorBrush(Color.Parse("#55FF0000"));
             if (left == 1) return new SolidColorBrush(Color.Parse("#44FF6600"));
             return Brushes.Transparent;
@@ -66,15 +64,12 @@ public partial class PilotViewModel : ViewModelBase
     private readonly Action _onEnd;
     private readonly RaceSession _session;
     private readonly DispatcherTimer _timer;
-    private DateTime _currentPilotLapStart;
 
     public PilotViewModel(string roundName, int nbrToursMax, RaceSession session, Action onEnd)
     {
-        RoundName = roundName;
         NbrToursMax = nbrToursMax;
         _session = session;
         _onEnd = onEnd;
-        _currentPilotLapStart = session.StartTime;
 
         _timer = new DispatcherTimer(DispatcherPriority.Normal) { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += OnTimerTick;
@@ -84,9 +79,8 @@ public partial class PilotViewModel : ViewModelBase
     public PilotViewModel() : this("U15-Qualif-1", 10, new RaceSession("U15-Qualif-1", 10), () => { })
     {
         _currentNumber = "4567";
-        _toursActuels = 9; // DERNIER TOUR for design preview
+        _currentTurns = 9; // DERNIER TOUR for design preview
         _position = 3;
-        _precedentNumero = "1234";
         _roundTimerDisplay = "12:34";
         _pilotLapTimerDisplay = "01:23";
         _isKeypadMode = false;
@@ -105,29 +99,31 @@ public partial class PilotViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void Valider()
+    private void Validate()
     {
         if (IsKeypadMode)
         {
-            if (string.IsNullOrEmpty(CurrentNumber)) return; 
-            var lastEntry = _session.Entries.LastOrDefault(e => e.PilotNumber == CurrentNumber);
-            _currentPilotLapStart = lastEntry?.Timestamp ?? _session.StartTime;
-            var lap = DateTime.Now - _currentPilotLapStart;
+            if (string.IsNullOrEmpty(CurrentNumber)) return;
+            var previousEntry = _session.GetPreviousEntry(CurrentNumber);
+            CurrentTurns = previousEntry.Turn + 1;
+            var newEntry  = _session.AddEntry(CurrentNumber, CurrentTurns);
+
+            var lapStart = previousEntry.Timestamp ;
+            var lap = newEntry.Timestamp - lapStart;
             PilotLapTimerDisplay = $"{(int)lap.TotalMinutes:D2}:{lap.Seconds:D2}";
-            Position = _session.Entries.Count(e => e.Turn == ToursActuels) + 1;
+            Position = _session.Entries.Count(e => e.Turn == CurrentTurns);
+
             IsKeypadMode = false;
         }
         else
         {
-            PrecedentNumero = CurrentNumber;
             CurrentNumber = "";
             IsKeypadMode = true;
-            _session.AddEntry(CurrentNumber, ToursActuels);
         }
     }
 
     [RelayCommand]
-    private void Corriger()
+    private void Correct()
     {
         if (!IsKeypadMode)
             IsKeypadMode = true;
@@ -136,10 +132,10 @@ public partial class PilotViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void FinirRound() => IsConfirmingEnd = true;
+    private void FinishRound() => IsConfirmingEnd = true;
 
     [RelayCommand]
-    private void ConfirmerFin()
+    private void ConfirmFinish()
     {
         _session.Finish();
         _timer.Stop();
@@ -147,5 +143,5 @@ public partial class PilotViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void AnnulerFin() => IsConfirmingEnd = false;
+    private void CancelFinish() => IsConfirmingEnd = false;
 }
