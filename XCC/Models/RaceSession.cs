@@ -22,6 +22,13 @@ public class RaceSession(string roundName, int turnsMax, DateTime? startTime = n
         return entry;
     }
 
+    public PilotEntry AddEntry(string pilotNumber, int turn, DateTime timestamp)
+    {
+        var entry = new PilotEntry(pilotNumber, timestamp, turn);
+        _entries.Add(entry);
+        return entry;
+    }
+
     public PilotEntry GetPreviousEntry(string pilotNumber)
         => _entries.LastOrDefault(e => e.PilotNumber == pilotNumber)
            ?? new PilotEntry("", StartTime, 0);

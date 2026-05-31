@@ -47,7 +47,7 @@
     <vm:StartupViewModel/>
   </Design.DataContext>
 
-  <Grid RowDefinitions="*,Auto">
+  <Grid RowDefinitions="*,Auto,Auto">
 
     <!-- Form fields -->
     <StackPanel Grid.Row="0"
@@ -104,7 +104,22 @@
             HorizontalAlignment="Center"
             Padding="64,22"
             LetterSpacing="2"
-            Margin="0,0,0,48"/>
+            Margin="0,0,0,16"/>
+
+    <!-- Debug simulation — hidden in Release builds -->
+    <Button Grid.Row="2"
+            Content="[DEBUG]  Simuler un round"
+            Command="{Binding SimulerCommand}"
+            IsVisible="{Binding IsDebug}"
+            Background="Transparent"
+            Foreground="#888800"
+            BorderBrush="#888800"
+            BorderThickness="1"
+            CornerRadius="6"
+            FontSize="14"
+            HorizontalAlignment="Center"
+            Padding="24,10"
+            Margin="0,0,0,24"/>
 
   </Grid>
 

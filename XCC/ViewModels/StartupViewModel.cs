@@ -1,6 +1,8 @@
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using XCC.Models;
+using XCC.Services;
 
 namespace XCC.ViewModels;
 
@@ -13,8 +15,20 @@ public partial class StartupViewModel : ViewModelBase
     [ObservableProperty] private int _nombreTours = 5;
 
     private readonly Action<string, int> _onStart;
+    private readonly Action<RaceSession>? _onSimulate;
 
-    public StartupViewModel(Action<string, int> onStart) => _onStart = onStart;
+    public bool IsDebug =>
+#if DEBUG
+        true;
+#else
+        false;
+#endif
+
+    public StartupViewModel(Action<string, int> onStart, Action<RaceSession>? onSimulate = null)
+    {
+        _onStart = onStart;
+        _onSimulate = onSimulate;
+    }
 
     public StartupViewModel() : this((_, _) => { }) { }
 
@@ -28,4 +42,7 @@ public partial class StartupViewModel : ViewModelBase
     private void Demarrer() => _onStart(RoundName, NombreTours);
 
     private bool CanDemarrer() => !string.IsNullOrWhiteSpace(RoundName);
+
+    [RelayCommand]
+    private void Simuler() => _onSimulate?.Invoke(SimulationService.Create(RoundName, NombreTours));
 }

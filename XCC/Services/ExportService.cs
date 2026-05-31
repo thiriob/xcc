@@ -117,17 +117,21 @@ public static class ExportService
         }
 
         // ── Historique section ───────────────────────────────────────────────
-        WriteSectionHeader(ws, secHistRow, 1, 4, "HISTORIQUE");
+        WriteSectionHeader(ws, secHistRow, 1, 5, "HISTORIQUE");
 
         ws.Cell(histHeaderRow, 1).Value = "NUMÉRO PILOTE";
         ws.Cell(histHeaderRow, 2).Value = "HEURE";
         ws.Cell(histHeaderRow, 3).Value = "TOUR";
-        ws.Cell(histHeaderRow, 4).Value = "TEMPS AU TOUR";
-        StyleHeader(ws.Range(histHeaderRow, 1, histHeaderRow, 4));
+        ws.Cell(histHeaderRow, 4).Value = "POSITION";
+        ws.Cell(histHeaderRow, 5).Value = "TEMPS AU TOUR";
+        StyleHeader(ws.Range(histHeaderRow, 1, histHeaderRow, 5));
 
         var pilotHistory = session.Entries
             .GroupBy(e => e.PilotNumber)
             .ToDictionary(g => g.Key, g => g.OrderBy(e => e.Timestamp).ToList());
+
+        // Running position counter per turn (entries are already in finish order)
+        var positionPerTurn = new Dictionary<int, int>();
 
         for (int i = 0; i < M; i++)
         {
@@ -138,6 +142,9 @@ public static class ExportService
             var lapStart = idx > 0 ? history[idx - 1].Timestamp : session.StartTime;
             var lap = entry.Timestamp - lapStart;
 
+            positionPerTurn.TryGetValue(entry.Turn, out var pos);
+            positionPerTurn[entry.Turn] = ++pos;
+
             SetPilot(ws.Cell(row, 1), entry.PilotNumber);
 
             // Real DateTime value so SUMPRODUCT(MAX(...)) comparisons work correctly
@@ -145,20 +152,22 @@ public static class ExportService
             ws.Cell(row, 2).Style.NumberFormat.Format = "HH:mm:ss";
 
             ws.Cell(row, 3).Value = entry.Turn;
+            ws.Cell(row, 4).Value = pos;
 
             // Fraction-of-day so Excel formats it as [mm]:ss
-            ws.Cell(row, 4).Value = lap.TotalDays;
-            ws.Cell(row, 4).Style.NumberFormat.Format = "[mm]:ss";
+            ws.Cell(row, 5).Value = lap.TotalDays;
+            ws.Cell(row, 5).Style.NumberFormat.Format = "[mm]:ss";
 
             if (row % 2 == 0)
-                ws.Range(row, 1, row, 4).Style.Fill.BackgroundColor = RowAlt;
+                ws.Range(row, 1, row, 5).Style.Fill.BackgroundColor = RowAlt;
         }
 
         // ── Column widths ────────────────────────────────────────────────────
-        ws.Column(1).Width = 18; // pilot number / position
-        ws.Column(2).Width = 14; // heure / tours
-        ws.Column(3).Width = 10; // tour / dernier passage
-        ws.Column(4).Width = 22; // temps au tour / dernier passage
+        ws.Column(1).Width = 18; // numéro pilote
+        ws.Column(2).Width = 12; // heure
+        ws.Column(3).Width = 8;  // tour
+        ws.Column(4).Width = 12; // position
+        ws.Column(5).Width = 16; // temps au tour
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────

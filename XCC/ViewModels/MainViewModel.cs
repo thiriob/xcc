@@ -9,7 +9,11 @@ public partial class MainViewModel : ViewModelBase
 
     public MainViewModel()
     {
-        _currentViewModel = new StartupViewModel(GoToPilotView);
+        _currentViewModel = new StartupViewModel(GoToPilotView
+#if DEBUG
+            , session => CurrentViewModel = new EndRoundViewModel(session, Reset)
+#endif
+        );
     }
 
     private void GoToPilotView(string roundName, int nbrTours)
