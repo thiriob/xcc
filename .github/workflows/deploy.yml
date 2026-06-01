@@ -31,13 +31,16 @@ jobs:
       - name: Install wasm-tools workload
         run: dotnet workload install wasm-tools
 
-      - name: Set build configuration
+      - name: Set build configuration and version
         id: config
         run: |
+          COUNT=$(git rev-list --count HEAD)
           if echo "${{ github.event.head_commit.message }}" | grep -q '\[debug\]'; then
             echo "configuration=Debug" >> $GITHUB_OUTPUT
+            echo "namespace XCC; public static class BuildInfo { public const string Version = \"v${COUNT}D\"; }" > XCC/XCC/BuildInfo.cs
           else
             echo "configuration=Release" >> $GITHUB_OUTPUT
+            echo "namespace XCC; public static class BuildInfo { public const string Version = \"v${COUNT}R\"; }" > XCC/XCC/BuildInfo.cs
           fi
 
       - name: Publish browser app

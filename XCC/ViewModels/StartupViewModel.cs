@@ -18,6 +18,8 @@ public partial class StartupViewModel : ViewModelBase
     private readonly Action<string, int> _onStart;
     private readonly Action<RaceSession>? _onSimulate;
 
+    public string Version => BuildInfo.Version;
+
     public bool IsDebug =>
 #if DEBUG
         true;
