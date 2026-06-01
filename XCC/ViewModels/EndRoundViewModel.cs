@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -17,9 +18,7 @@ public partial class EndRoundViewModel : ViewModelBase
     public string NombrePilotesDisplay { get; }
     public string ToursDisplay { get; }
     public string TempsTotalDisplay { get; }
-    public string Top1Display { get; }
-    public string Top2Display { get; }
-    public string Top3Display { get; }
+    public IReadOnlyList<PlacementEntry> Standings { get; }
 
     private readonly Action _onNouveauRound;
     private readonly RaceSession _session;
@@ -31,28 +30,39 @@ public partial class EndRoundViewModel : ViewModelBase
 
         var elapsed = session.Elapsed;
         var finishTime = session.FinishTime ?? DateTime.Now;
-        var uniquePilots = session.Entries.Select(e => e.PilotNumber).Distinct().Count();
         var maxTurn = session.Entries.Count > 0 ? session.Entries.Max(e => e.Turn) : 0;
-        var top = session.Entries.Select(e => e.PilotNumber).Distinct().Take(3).ToList();
 
         RoundName = session.RoundName;
         HeureFinDisplay = $"Fin à {finishTime:HH:mm}";
-        NombrePilotesDisplay = $"Pilotes : {uniquePilots}";
-        ToursDisplay = $"Tours : {maxTurn}/{session.TurnsMax}";
         TempsTotalDisplay = $"Durée : {(int)elapsed.TotalMinutes:D2}:{elapsed.Seconds:D2}";
-        Top1Display = top.Count > 0 ? top[0] : "-";
-        Top2Display = top.Count > 1 ? top[1] : "-";
-        Top3Display = top.Count > 2 ? top[2] : "-";
+        ToursDisplay = $"Tours : {maxTurn}/{session.TurnsMax}";
+
+        Standings = session.Entries
+            .GroupBy(e => e.PilotNumber)
+            .Select(g =>
+            {
+                var mt = g.Max(e => e.Turn);
+                var last = g.Where(e => e.Turn == mt).Max(e => e.Timestamp);
+                return (PilotNumber: g.Key, MaxTurn: mt, Last: last);
+            })
+            .OrderByDescending(s => s.MaxTurn)
+            .ThenBy(s => s.Last)
+            .Select((s, i) => new PlacementEntry(i + 1, s.PilotNumber, s.MaxTurn, s.Last.ToString("HH:mm:ss")))
+            .ToList();
+
+        NombrePilotesDisplay = $"Pilotes : {Standings.Count}";
     }
 
     public EndRoundViewModel() : this(MakeDesignSession(), () => { }) { }
 
     private static RaceSession MakeDesignSession()
     {
-        var s = new RaceSession("U15-Qualif-1", 5, DateTime.Now.AddMinutes(-12).AddSeconds(-34));
-        s.AddEntry("1234", 5);
-        s.AddEntry("5678", 5);
-        s.AddEntry("9012", 4);
+        var start = DateTime.Now.AddMinutes(-14);
+        var s = new RaceSession("U15-Qualif-1", 5, start);
+        var pilots = new[] { "101","105","112","108","103","119","107","115","102","118" };
+        for (int turn = 1; turn <= 5; turn++)
+            foreach (var (p, i) in pilots.Take(turn < 5 ? pilots.Length : 8).Select((p, i) => (p, i)))
+                s.AddEntry(p, turn, start.AddSeconds(turn * 95 + i * 12));
         s.Finish();
         return s;
     }

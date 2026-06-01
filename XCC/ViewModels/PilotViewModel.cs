@@ -15,6 +15,12 @@ public partial class PilotViewModel : ViewModelBase
     [ObservableProperty] private bool _isConfirmingEnd;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StatusText))]
+    [NotifyPropertyChangedFor(nameof(StatusColor))]
+    [NotifyPropertyChangedFor(nameof(NumberBackground))]
+    private bool _raceComplete;
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ToursDisplay))]
     [NotifyPropertyChangedFor(nameof(StatusText))]
     [NotifyPropertyChangedFor(nameof(StatusColor))]
@@ -32,6 +38,7 @@ public partial class PilotViewModel : ViewModelBase
     {
         get
         {
+            if (RaceComplete) return "DERNIER PASSAGE";
             var left = NbrToursMax - CurrentTurns;
             if (left <= 0) return "FINI";
             if (left == 1) return "DERNIER TOUR";
@@ -43,6 +50,7 @@ public partial class PilotViewModel : ViewModelBase
     {
         get
         {
+            if (RaceComplete) return new SolidColorBrush(Color.Parse("#FF6D00"));
             var left = NbrToursMax - CurrentTurns;
             if (left <= 0) return Brushes.Red;
             if (left == 1) return new SolidColorBrush(Color.Parse("#FF8C00"));
@@ -54,6 +62,7 @@ public partial class PilotViewModel : ViewModelBase
     {
         get
         {
+            if (RaceComplete) return new SolidColorBrush(Color.Parse("#44FF6D00"));
             var left = NbrToursMax - CurrentTurns;
             if (left <= 0) return new SolidColorBrush(Color.Parse("#55FF0000"));
             if (left == 1) return new SolidColorBrush(Color.Parse("#44FF6600"));
@@ -79,7 +88,8 @@ public partial class PilotViewModel : ViewModelBase
     public PilotViewModel() : this("U15-Qualif-1", 10, new RaceSession("U15-Qualif-1", 10), () => { })
     {
         _currentNumber = "4567";
-        _currentTurns = 9; // DERNIER TOUR for design preview
+        _currentTurns = 4;
+        _raceComplete = true; // preview DERNIER PASSAGE state
         _position = 3;
         _roundTimerDisplay = "12:34";
         _pilotLapTimerDisplay = "01:23";
@@ -104,11 +114,20 @@ public partial class PilotViewModel : ViewModelBase
         if (IsKeypadMode)
         {
             if (string.IsNullOrEmpty(CurrentNumber)) return;
-            var previousEntry = _session.GetPreviousEntry(CurrentNumber);
-            CurrentTurns = previousEntry.Turn + 1;
-            var newEntry  = _session.AddEntry(CurrentNumber, CurrentTurns);
 
-            var lapStart = previousEntry.Timestamp ;
+            var previousEntry = _session.GetPreviousEntry(CurrentNumber);
+
+            // Pilot already completed their last lap — ignore
+            if (previousEntry.Turn >= NbrToursMax) return;
+
+            CurrentTurns = previousEntry.Turn + 1;
+            var newEntry = _session.AddEntry(CurrentNumber, CurrentTurns);
+
+            // First pilot to reach the max turn triggers race-complete mode
+            if (!RaceComplete && CurrentTurns >= NbrToursMax)
+                RaceComplete = true;
+
+            var lapStart = previousEntry.Timestamp;
             var lap = newEntry.Timestamp - lapStart;
             PilotLapTimerDisplay = $"{(int)lap.TotalMinutes:D2}:{lap.Seconds:D2}";
             Position = _session.Entries.Count(e => e.Turn == CurrentTurns);
