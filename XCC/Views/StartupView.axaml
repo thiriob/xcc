@@ -49,15 +49,6 @@
 
   <Grid RowDefinitions="*,Auto,Auto,Auto">
 
-    <!-- Version label — overlays entire grid, top-left corner -->
-    <TextBlock Grid.Row="0" Grid.RowSpan="4"
-               Text="{Binding Version}"
-               Foreground="#50FFFFFF"
-               FontSize="11"
-               HorizontalAlignment="Left"
-               VerticalAlignment="Top"
-               Margin="10,10"/>
-
     <!-- Form fields -->
     <StackPanel Grid.Row="0"
                 VerticalAlignment="Center"

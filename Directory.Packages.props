@@ -17,7 +17,6 @@
 
         <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
         <PackageVersion Include="ClosedXML" Version="0.102.2" />
-        <PackageVersion Include="System.IO.Packaging" Version="9.0.0" />
 
         <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.15" />
     </ItemGroup>
