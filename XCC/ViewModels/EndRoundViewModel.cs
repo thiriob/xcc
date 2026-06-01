@@ -42,7 +42,7 @@ public partial class EndRoundViewModel : ViewModelBase
             .Select(g =>
             {
                 var mt = g.Max(e => e.Turn);
-                var last = g.Where(e => e.Turn == mt).Max(e => e.Timestamp);
+                var last = g.Where(e => e.Turn == mt).Min(e => e.Timestamp);
                 return (PilotNumber: g.Key, MaxTurn: mt, Last: last);
             })
             .OrderByDescending(s => s.MaxTurn)

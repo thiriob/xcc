@@ -33,5 +33,16 @@ public class RaceSession(string roundName, int turnsMax, DateTime? startTime = n
         => _entries.LastOrDefault(e => e.PilotNumber == pilotNumber)
            ?? new PilotEntry("", StartTime, 0);
 
-    public void Finish() => FinishTime = DateTime.Now;
+    public void Finish()
+    {
+        FinishTime = DateTime.Now;
+        var finishTime = FinishTime.Value;
+        var pilots = _entries.Select(e => e.PilotNumber).Distinct().ToList();
+        foreach (var pilot in pilots)
+        {
+            var lastTurn = _entries.Where(e => e.PilotNumber == pilot).Max(e => e.Turn);
+            if (lastTurn < TurnsMax)
+                _entries.Add(new PilotEntry(pilot, finishTime, lastTurn));
+        }
+    }
 }
