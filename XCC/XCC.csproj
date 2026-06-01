@@ -22,4 +22,28 @@
         <PackageReference Include="ClosedXML"/>
         <PackageReference Include="System.IO.Packaging"/>
     </ItemGroup>
+
+    <!--
+      On local builds (CI env-var not set), generate BuildInfo.g.cs in the obj dir
+      and swap it in place of BuildInfo.cs so the source file never becomes dirty.
+      GitHub Actions sets CI=true automatically, so this target is skipped there and
+      the workflow-written BuildInfo.cs (with v{n}R / v{n}D) is compiled as normal.
+    -->
+    <Target Name="GenerateLocalBuildInfo" BeforeTargets="BeforeBuild" Condition="'$(CI)' != 'true'">
+        <Exec Command="git rev-list --count HEAD"
+              ConsoleToMSBuild="true"
+              StandardOutputImportance="Low">
+            <Output TaskParameter="ConsoleOutput" PropertyName="_GitCount"/>
+        </Exec>
+        <MakeDir Directories="$(IntermediateOutputPath)"/>
+        <WriteLinesToFile
+            File="$(IntermediateOutputPath)BuildInfo.g.cs"
+            Lines="namespace XCC%3B public static class BuildInfo { public const string Version = &quot;dev$(_GitCount.Trim())&quot;%3B }"
+            Overwrite="true"
+            Encoding="UTF-8"/>
+        <ItemGroup>
+            <Compile Remove="BuildInfo.cs"/>
+            <Compile Include="$(IntermediateOutputPath)BuildInfo.g.cs"/>
+        </ItemGroup>
+    </Target>
 </Project>
