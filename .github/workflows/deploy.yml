@@ -31,8 +31,17 @@ jobs:
       - name: Install wasm-tools workload
         run: dotnet workload install wasm-tools
 
+      - name: Set build configuration
+        id: config
+        run: |
+          if echo "${{ github.event.head_commit.message }}" | grep -q '\[debug\]'; then
+            echo "configuration=Debug" >> $GITHUB_OUTPUT
+          else
+            echo "configuration=Release" >> $GITHUB_OUTPUT
+          fi
+
       - name: Publish browser app
-        run: dotnet publish XCC.Browser -c Release -o publish
+        run: dotnet publish XCC.Browser -c ${{ steps.config.outputs.configuration }} -o publish
 
       - name: Add .nojekyll
         run: touch publish/wwwroot/.nojekyll
