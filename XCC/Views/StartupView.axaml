@@ -47,7 +47,7 @@
     <vm:StartupViewModel/>
   </Design.DataContext>
 
-  <Grid RowDefinitions="*,Auto,Auto">
+  <Grid RowDefinitions="*,Auto,Auto,Auto">
 
     <!-- Form fields -->
     <StackPanel Grid.Row="0"
@@ -110,6 +110,20 @@
     <Button Grid.Row="2"
             Content="[DEBUG]  Simuler un round"
             Command="{Binding SimulerCommand}"
+            IsVisible="{Binding IsDebug}"
+            Background="Transparent"
+            Foreground="#888800"
+            BorderBrush="#888800"
+            BorderThickness="1"
+            CornerRadius="6"
+            FontSize="14"
+            HorizontalAlignment="Center"
+            Padding="24,10"
+            Margin="0,0,0,8"/>
+
+    <Button Grid.Row="3"
+            Content="[DEBUG]  Séquence DNF (1,2588,7,2,85)"
+            Command="{Binding SimulerSequenceCommand}"
             IsVisible="{Binding IsDebug}"
             Background="Transparent"
             Foreground="#888800"

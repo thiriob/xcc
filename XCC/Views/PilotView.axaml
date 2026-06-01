@@ -139,7 +139,7 @@
       <Button Grid.Row="4" Grid.Column="0" Classes="keypad" Content="7" Command="{Binding AppendDigitCommand}" CommandParameter="7"/>
       <Button Grid.Row="4" Grid.Column="2" Classes="keypad" Content="8" Command="{Binding AppendDigitCommand}" CommandParameter="8"/>
       <Button Grid.Row="4" Grid.Column="4" Classes="keypad" Content="9" Command="{Binding AppendDigitCommand}" CommandParameter="9"/>
-      <Button Grid.Row="6" Grid.Column="0" Classes="keypad" Content="✕" Command="{Binding CorrectCommand}"/>
+      <Button Grid.Row="6" Grid.Column="0" Classes="keypad" Content="⌫" Command="{Binding CorrectCommand}"/>
       <Button Grid.Row="6" Grid.Column="2" Classes="keypad" Content="0" Command="{Binding AppendDigitCommand}" CommandParameter="0"/>
       <Button Grid.Row="6" Grid.Column="4" Classes="keypad" Content="✓" Command="{Binding ValidateCommand}"/>
     </Grid>
