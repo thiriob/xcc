@@ -49,6 +49,14 @@
 
   <Grid RowDefinitions="*,Auto,Auto,Auto">
 
+    <TextBlock Grid.RowSpan="4"
+               Text="{Binding VersionString}"
+               Foreground="#606060"
+               FontSize="12"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               Margin="8,8"/>
+
     <!-- Form fields -->
     <StackPanel Grid.Row="0"
                 VerticalAlignment="Center"

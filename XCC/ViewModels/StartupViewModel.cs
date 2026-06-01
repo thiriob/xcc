@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using XCC.Models;
@@ -24,6 +25,22 @@ public partial class StartupViewModel : ViewModelBase
 #else
         false;
 #endif
+
+    public string VersionString
+    {
+        get
+        {
+            var prefix = IsDebug ? "D" : "R";
+            var info = typeof(StartupViewModel).Assembly
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                ?.InformationalVersion ?? "";
+            var plusIdx = info.IndexOf('+');
+            var hash = plusIdx >= 0 && info.Length > plusIdx + 7
+                ? info.Substring(plusIdx + 1, 7)
+                : "?";
+            return $"{prefix}-{hash}";
+        }
+    }
 
     public StartupViewModel(Action<string, int> onStart, Action<RaceSession>? onSimulate = null)
     {
