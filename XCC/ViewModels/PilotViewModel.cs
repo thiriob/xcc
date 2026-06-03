@@ -32,7 +32,7 @@ public partial class PilotViewModel : ViewModelBase
     {
         get
         {
-            if (RaceComplete) return new SolidColorBrush(Color.Parse("#44FF6D00"));
+            if (RaceComplete) return new SolidColorBrush(Color.Parse("#55FF0000"));
             var left = NbrToursMax - CurrentTurns;
             if (left <= 0) return new SolidColorBrush(Color.Parse("#55FF0000"));
             if (left == 1) return new SolidColorBrush(Color.Parse("#44FF6600"));
