@@ -71,18 +71,20 @@ public static class XlsxGenerator
         ws.Cell(resHeaderRow, 1).Value = "POSITION";
         ws.Cell(resHeaderRow, 2).Value = "NUMÉRO PILOTE";
         ws.Cell(resHeaderRow, 3).Value = "TOURS";
-        ws.Cell(resHeaderRow, 4).Value = "DERNIER PASSAGE";
+        ws.Cell(resHeaderRow, 4).Value = "CHRONO FINAL";
         StyleHeader(ws.Range(resHeaderRow, 1, resHeaderRow, 4));
 
         // Column range references for the history data area
+        // A=Pilote B=Heure C=DepuisDépart D=Tour E=Position F=TempsAuTour G=Score H=DernièreBoucle
         string Ah = $"$A${histDataStart}:$A${histDataEnd}";
         string Bh = $"$B${histDataStart}:$B${histDataEnd}";
         string Ch = $"$C${histDataStart}:$C${histDataEnd}";
-        // Column F (score): non-blank only for each pilot's real last-turn row.
+        string Dh = $"$D${histDataStart}:$D${histDataEnd}";
+        // Column G (score): non-blank only for each pilot's real last-turn row.
         // Score = turn - MOD(time,1). More turns wins; within same turns, earlier time wins.
         // Finalization entries share the same turn number but have a later time so they score
         // lower — LARGE naturally picks the real crossing over any finalization duplicate.
-        string Fh = $"$F${histDataStart}:$F${histDataEnd}";
+        string Gh = $"$G${histDataStart}:$G${histDataEnd}";
 
         for (int i = 0; i < MaxClassementRows; i++)
         {
@@ -97,16 +99,16 @@ public static class XlsxGenerator
                 // Pure SUMPRODUCT — ClosedXML never adds @ to ranges inside SUMPRODUCT.
                 // Requires numeric pilot numbers (standard for XCC bibs).
                 ws.Cell(row, 2).FormulaA1 =
-                    $"IFERROR(SUMPRODUCT(({Fh}=LARGE({Fh},{k}))*{Ah}),\"\")";
+                    $"IFERROR(SUMPRODUCT(({Gh}=LARGE({Gh},{k}))*{Ah}),\"\")";
 
                 ws.Cell(row, 3).FormulaA1 =
-                    $"IF(B{row}=\"\",\"\",IFERROR(SUMPRODUCT(MAX(({Ah}=B{row})*{Ch})),0))";
+                    $"IF(B{row}=\"\",\"\",IFERROR(SUMPRODUCT(MAX(({Ah}=B{row})*{Dh})),0))";
 
-                // Real crossing time: ISNUMBER(Fh) flags representative rows (score is numeric
-                // there, "" elsewhere), so finalization entries are excluded from the lookup.
+                // Chrono final: fetch the pilot's DEPUIS DÉPART value at their last real crossing.
+                // ISNUMBER(Gh) excludes finalization entries (score is "" there).
                 ws.Cell(row, 4).FormulaA1 =
-                    $"IF(B{row}=\"\",\"\",SUMPRODUCT(({Ah}=B{row})*ISNUMBER({Fh})*({Ch}=C{row})*{Bh}))";
-                ws.Cell(row, 4).Style.NumberFormat.Format = "HH:mm:ss";
+                    $"IF(B{row}=\"\",\"\",SUMPRODUCT(({Ah}=B{row})*ISNUMBER({Gh})*({Dh}=C{row})*{Ch}))";
+                ws.Cell(row, 4).Style.NumberFormat.Format = "[mm]:ss";
             }
 
             var range = ws.Range(row, 1, row, 4);
@@ -123,16 +125,17 @@ public static class XlsxGenerator
         }
 
         // ── Historique section ───────────────────────────────────────────────
-        WriteSectionHeader(ws, secHistRow, 1, 7, "HISTORIQUE");
+        WriteSectionHeader(ws, secHistRow, 1, 8, "HISTORIQUE");
 
         ws.Cell(histHeaderRow, 1).Value = "NUMÉRO PILOTE";
         ws.Cell(histHeaderRow, 2).Value = "HEURE";
-        ws.Cell(histHeaderRow, 3).Value = "TOUR";
-        ws.Cell(histHeaderRow, 4).Value = "POSITION";
-        ws.Cell(histHeaderRow, 5).Value = "TEMPS AU TOUR";
-        ws.Cell(histHeaderRow, 6).Value = "SCORE";
-        ws.Cell(histHeaderRow, 7).Value = "DERNIERE BOUCLE";
-        StyleHeader(ws.Range(histHeaderRow, 1, histHeaderRow, 7));
+        ws.Cell(histHeaderRow, 3).Value = "DEPUIS DÉPART";
+        ws.Cell(histHeaderRow, 4).Value = "TOUR";
+        ws.Cell(histHeaderRow, 5).Value = "POSITION";
+        ws.Cell(histHeaderRow, 6).Value = "TEMPS AU TOUR";
+        ws.Cell(histHeaderRow, 7).Value = "SCORE";
+        ws.Cell(histHeaderRow, 8).Value = "DERNIERE BOUCLE";
+        StyleHeader(ws.Range(histHeaderRow, 1, histHeaderRow, 8));
 
         var pilotHistory = session.Entries
             .GroupBy(e => e.PilotNumber)
@@ -157,34 +160,39 @@ public static class XlsxGenerator
             ws.Cell(row, 2).Value = entry.Timestamp;
             ws.Cell(row, 2).Style.NumberFormat.Format = "HH:mm:ss";
 
-            ws.Cell(row, 3).Value = entry.Turn;
-            ws.Cell(row, 4).Value = pos;
+            var sinceStart = entry.Timestamp - session.StartTime;
+            ws.Cell(row, 3).Value = sinceStart.TotalDays;
+            ws.Cell(row, 3).Style.NumberFormat.Format = "[mm]:ss";
 
-            ws.Cell(row, 5).Value = lap.TotalDays;
-            ws.Cell(row, 5).Style.NumberFormat.Format = "[mm]:ss";
+            ws.Cell(row, 4).Value = entry.Turn;
+            ws.Cell(row, 5).Value = pos;
 
-            // F: score = turn - time-of-day fraction; blank when this is not the pilot's last turn.
+            ws.Cell(row, 6).Value = lap.TotalDays;
+            ws.Cell(row, 6).Style.NumberFormat.Format = "[mm]:ss";
+
+            // G: score = turn - time-of-day fraction; blank when this is not the pilot's last turn.
             // Non-last-turn rows score "" so LARGE skips them entirely.
             // SUMPRODUCT(MAX()) used instead of MAXIFS to avoid ClosedXML adding the @ operator.
-            string maxTurnForPilot = $"SUMPRODUCT(MAX(({Ah}=A{row})*{Ch}))";
-            ws.Cell(row, 6).FormulaA1 =
-                $"IF(C{row}={maxTurnForPilot},C{row}-MOD(B{row},1),\"\")";
-
-            // G: 1 if this row is the pilot's last (or equal-last) turn, else 0
+            string maxTurnForPilot = $"SUMPRODUCT(MAX(({Ah}=A{row})*{Dh}))";
             ws.Cell(row, 7).FormulaA1 =
-                $"(C{row}={maxTurnForPilot})*1";
+                $"IF(D{row}={maxTurnForPilot},D{row}-MOD(B{row},1),\"\")";
+
+            // H: 1 if this row is the pilot's last (or equal-last) turn, else 0
+            ws.Cell(row, 8).FormulaA1 =
+                $"(D{row}={maxTurnForPilot})*1";
 
             if (row % 2 == 0)
-                ws.Range(row, 1, row, 7).Style.Fill.BackgroundColor = RowAlt;
+                ws.Range(row, 1, row, 8).Style.Fill.BackgroundColor = RowAlt;
         }
 
         ws.Column(1).Width = 18;
         ws.Column(2).Width = 12;
-        ws.Column(3).Width = 8;
-        ws.Column(4).Width = 12;
-        ws.Column(5).Width = 16;
-        ws.Column(6).Width = 12;
-        ws.Column(7).Width = 15;
+        ws.Column(3).Width = 14;
+        ws.Column(4).Width = 8;
+        ws.Column(5).Width = 12;
+        ws.Column(6).Width = 16;
+        ws.Column(7).Width = 12;
+        ws.Column(8).Width = 15;
     }
 
     private static void WriteSectionHeader(IXLWorksheet ws, int row, int colFrom, int colTo, string label)
