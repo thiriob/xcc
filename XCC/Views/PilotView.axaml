@@ -78,13 +78,13 @@
 
   <Grid RowDefinitions="3*,Auto,8*">
 
-    <!-- Number display + race-complete banner + end-round button, always visible -->
-    <Grid Grid.Row="0" RowDefinitions="*,Auto,Auto">
+    <!-- Number display + prev pilot info + end-round button -->
+    <Grid Grid.Row="0" RowDefinitions="*,44">
       <Border Grid.Row="0"
               Background="{Binding NumberBackground}"
-              Margin="16,24,16,8"
+              Margin="6,6,6,4"
               CornerRadius="16"
-              Padding="24,36">
+              Padding="20,8">
         <TextBlock Text="{Binding CurrentNumber}"
                    FontSize="100"
                    FontWeight="DemiBold"
@@ -93,26 +93,37 @@
                    VerticalAlignment="Center"/>
       </Border>
 
-      <!-- Shown once the leader finishes the last lap -->
-      <Border Grid.Row="1"
-              IsVisible="{Binding RaceComplete}"
-              Background="#22FF6D00"
-              Padding="0,6"
-              Margin="16,0">
-        <TextBlock Text="PASSAGES FINAUX — Course terminée"
-                   Foreground="#FF6D00"
-                   FontSize="13"
-                   FontWeight="Bold"
-                   LetterSpacing="1"
-                   HorizontalAlignment="Center"/>
-      </Border>
+      <!-- Fixed-height strip: gray bg, prev pilot info OR race-complete message + finish button -->
+      <Border Grid.Row="1" Margin="6,0,6,4" CornerRadius="8" Background="#222222" Padding="12,0">
+        <Grid ColumnDefinitions="*,Auto">
 
-      <Button Grid.Row="2"
-              Classes="finir"
-              Content="Finir le round"
-              Command="{Binding FinishRoundCommand}"
-              HorizontalAlignment="Right"
-              Margin="0,4,16,8"/>
+          <!-- Left: prev pilot info while racing, race-complete message at end -->
+          <StackPanel Grid.Column="0" IsVisible="{Binding !RaceComplete}"
+                      Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
+            <TextBlock Text="{Binding LastPilotNumber}"
+                       FontSize="16" FontWeight="Bold" Foreground="White"
+                       VerticalAlignment="Center"
+                       IsVisible="{Binding HasLastPilot}"/>
+            <TextBlock Text="{Binding LastPilotInfo}"
+                       FontSize="13" Foreground="#80FFFFFF"
+                       VerticalAlignment="Center"
+                       IsVisible="{Binding HasLastPilot}"/>
+          </StackPanel>
+
+          <TextBlock Grid.Column="0"
+                     IsVisible="{Binding RaceComplete}"
+                     Text="PASSAGES FINAUX — Course terminée"
+                     Foreground="#FF6D00"
+                     FontSize="13" FontWeight="Bold" LetterSpacing="1"
+                     VerticalAlignment="Center"/>
+
+          <!-- Right: finish button -->
+          <Button Grid.Column="1" Classes="finir"
+                  Content="Finir le round"
+                  Command="{Binding FinishRoundCommand}"
+                  VerticalAlignment="Center"/>
+        </Grid>
+      </Border>
     </Grid>
 
     <!-- Separator -->
@@ -120,7 +131,6 @@
 
     <!-- Keypad panel -->
     <Grid Grid.Row="2"
-          IsVisible="{Binding IsKeypadMode}"
           RowDefinitions="*,1,*,1,*,1,*"
           ColumnDefinitions="*,1,*,1,*">
 
@@ -144,61 +154,8 @@
       <Button Grid.Row="6" Grid.Column="4" Classes="keypad" Content="✓" Command="{Binding ValidateCommand}"/>
     </Grid>
 
-    <!-- Infos panel -->
-    <Grid Grid.Row="2"
-          IsVisible="{Binding !IsKeypadMode}"
-          RowDefinitions="2*,Auto,Auto,*,Auto">
 
-      <!-- Status line — biggest, most visible, color-coded by urgency -->
-      <TextBlock Grid.Row="0"
-                 Text="{Binding StatusText}"
-                 Foreground="{Binding StatusColor}"
-                 FontSize="52"
-                 FontWeight="Bold"
-                 HorizontalAlignment="Center"
-                 VerticalAlignment="Center"
-                 TextAlignment="Center"
-                 TextWrapping="Wrap"
-                 Margin="16,0"/>
-
-      <!-- Timers row -->
-      <Grid Grid.Row="1" ColumnDefinitions="*,1,*" Margin="0,0,0,12">
-        <Rectangle Grid.Column="1" Fill="#40FFFFFF"/>
-        <StackPanel Grid.Column="0" HorizontalAlignment="Center" Spacing="3" Margin="0,8">
-          <TextBlock Text="Chrono round" Foreground="#80FFFFFF" FontSize="13" HorizontalAlignment="Center"/>
-          <TextBlock Text="{Binding RoundTimerDisplay}" Foreground="White" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center"/>
-        </StackPanel>
-        <StackPanel Grid.Column="2" HorizontalAlignment="Center" Spacing="3" Margin="0,8">
-          <TextBlock Text="Temps au tour" Foreground="#80FFFFFF" FontSize="13" HorizontalAlignment="Center"/>
-          <TextBlock Text="{Binding PilotLapTimerDisplay}" Foreground="White" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center"/>
-        </StackPanel>
-      </Grid>
-
-      <!-- Position / Tour row -->
-      <Grid Grid.Row="2" ColumnDefinitions="*,1,*" Margin="0,0,0,8">
-        <Rectangle Grid.Column="1" Fill="#40FFFFFF"/>
-        <StackPanel Grid.Column="0" HorizontalAlignment="Center" Spacing="2" Margin="0,8">
-          <TextBlock Text="Position" Foreground="#80FFFFFF" FontSize="13" HorizontalAlignment="Center"/>
-          <TextBlock Text="{Binding Position}" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center"/>
-        </StackPanel>
-        <StackPanel Grid.Column="2" HorizontalAlignment="Center" Spacing="2" Margin="0,8">
-          <TextBlock Text="Tour" Foreground="#80FFFFFF" FontSize="13" HorizontalAlignment="Center"/>
-          <TextBlock Text="{Binding ToursDisplay}" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center"/>
-        </StackPanel>
-      </Grid>
-
-      <!-- Spacer -->
-      <!-- row 4 fills remaining space -->
-
-      <!-- Valider button -->
-      <Button Grid.Row="4" Classes="action" Content="✓  Valider"
-              Command="{Binding ValidateCommand}"
-              HorizontalAlignment="Center"
-              Padding="72,32"
-              Margin="16,12,16,28"/>
-    </Grid>
-
-    <!-- Confirmation overlay — covers full view, last in Grid so it renders on top -->
+<!-- Confirmation overlay — covers full view, last in Grid so it renders on top -->
     <Border Grid.Row="0" Grid.RowSpan="3"
             Background="#CC000000"
             IsVisible="{Binding IsConfirmingEnd}">
