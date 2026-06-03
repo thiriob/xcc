@@ -115,6 +115,9 @@
     <StackPanel Grid.Row="4"
                 Margin="24,12,24,36"
                 Spacing="12">
+      <Button Content="COPIER CLASSMT."
+              Command="{Binding CopierClassementCommand}"
+              Classes="outlined"/>
       <Button Content="EXPORTER"
               Command="{Binding ExporterCommand}"
               Classes="outlined"/>

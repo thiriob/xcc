@@ -47,7 +47,12 @@ public partial class EndRoundViewModel : ViewModelBase
             })
             .OrderByDescending(s => s.MaxTurn)
             .ThenBy(s => s.Last)
-            .Select((s, i) => new PlacementEntry(i + 1, s.PilotNumber, s.MaxTurn, s.Last.ToString("HH:mm:ss")))
+            .Select((s, i) =>
+            {
+                var chrono = s.Last - session.StartTime;
+                var chronoDisplay = $"{(int)chrono.TotalMinutes:D2}:{chrono.Seconds:D2}";
+                return new PlacementEntry(i + 1, s.PilotNumber, s.MaxTurn, s.Last.ToString("HH:mm:ss"), chronoDisplay);
+            })
             .ToList();
 
         NombrePilotesDisplay = $"Pilotes : {Standings.Count}";
@@ -65,6 +70,14 @@ public partial class EndRoundViewModel : ViewModelBase
                 s.AddEntry(p, turn, start.AddSeconds(turn * 95 + i * 12));
         s.Finish();
         return s;
+    }
+
+    [RelayCommand]
+    private async Task CopierClassement()
+    {
+        if (ClipboardProvider.Handler is null) return;
+        var text = string.Join("\n", Standings.Select(s => $"{s.PilotNumber}\t{s.ChronoDisplay}"));
+        await ClipboardProvider.Handler(text);
     }
 
     [RelayCommand]

@@ -2,7 +2,7 @@ using Avalonia.Media;
 
 namespace XCC.ViewModels;
 
-public record PlacementEntry(int Position, string PilotNumber, int MaxTurn, string LastTime)
+public record PlacementEntry(int Position, string PilotNumber, int MaxTurn, string LastTime, string ChronoDisplay)
 {
     public IBrush RowBackground => Position switch
     {

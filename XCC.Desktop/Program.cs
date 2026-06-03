@@ -10,6 +10,7 @@ sealed class Program
     public static void Main(string[] args)
     {
         ExportService.Register();
+        ClipboardService.Register();
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 
