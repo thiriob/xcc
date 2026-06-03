@@ -76,7 +76,7 @@ public partial class EndRoundViewModel : ViewModelBase
     private async Task CopierClassement()
     {
         if (ClipboardProvider.Handler is null) return;
-        var text = string.Join("\n", Standings.Select(s => $"{s.PilotNumber}\t{s.ChronoDisplay}"));
+        var text = string.Join("\n", Standings.Select(s => $"{s.PilotNumber}\t{s.MaxTurn}\t{s.ChronoDisplay}"));
         await ClipboardProvider.Handler(text);
     }
 
