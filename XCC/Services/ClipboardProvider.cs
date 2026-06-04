@@ -5,5 +5,5 @@ namespace XCC.Services;
 
 public static class ClipboardProvider
 {
-    public static Func<string, Task>? Handler { get; set; }
+    public static Func<string, Task<bool>>? Handler { get; set; }
 }

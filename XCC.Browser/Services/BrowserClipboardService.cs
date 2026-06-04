@@ -11,5 +11,16 @@ public static partial class BrowserClipboardService
 
     public static void Register() => ClipboardProvider.Handler = CopyAsync;
 
-    private static Task CopyAsync(string text) => JsWriteText(text);
+    private static async Task<bool> CopyAsync(string text)
+    {
+        try
+        {
+            await JsWriteText(text);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

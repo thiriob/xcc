@@ -12,11 +12,12 @@ public static class ClipboardService
 {
     public static void Register() => ClipboardProvider.Handler = CopyAsync;
 
-    private static async Task CopyAsync(string text)
+    private static async Task<bool> CopyAsync(string text)
     {
         var window = (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
         var clipboard = TopLevel.GetTopLevel(window)?.Clipboard;
-        if (clipboard != null)
-            await clipboard.SetValueAsync(DataFormat.Text, text);
+        if (clipboard is null) return false;
+        await clipboard.SetValueAsync(DataFormat.Text, text);
+        return true;
     }
 }

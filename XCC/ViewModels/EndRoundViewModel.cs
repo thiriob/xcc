@@ -78,8 +78,8 @@ public partial class EndRoundViewModel : ViewModelBase
     {
         if (ClipboardProvider.Handler is null) return;
         var text = string.Join("\n", Standings.Select(s => $"{s.PilotNumber}\t{s.MaxTurn}\t{s.ChronoDisplay}"));
-        await ClipboardProvider.Handler(text);
-        CopyLabel = "COPIÉ !";
+        var ok = await ClipboardProvider.Handler(text);
+        CopyLabel = ok ? "COPIÉ !" : "ÉCHEC COPIE";
         await Task.Delay(2000);
         CopyLabel = "COPIER CLASSMT.";
     }
