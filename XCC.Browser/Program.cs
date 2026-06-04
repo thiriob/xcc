@@ -9,6 +9,7 @@ internal sealed partial class Program
     private static Task Main(string[] args)
     {
         BrowserExportService.Register();
+        BrowserClipboardService.Register();
         return BuildAvaloniaApp()
             .WithInterFont()
 #if DEBUG

@@ -12,6 +12,7 @@ namespace XCC.ViewModels;
 public partial class EndRoundViewModel : ViewModelBase
 {
     [ObservableProperty] private string _exportStatus = "";
+    [ObservableProperty] private string _copyLabel = "COPIER CLASSMT.";
 
     public string RoundName { get; }
     public string HeureFinDisplay { get; }
@@ -78,6 +79,9 @@ public partial class EndRoundViewModel : ViewModelBase
         if (ClipboardProvider.Handler is null) return;
         var text = string.Join("\n", Standings.Select(s => $"{s.PilotNumber}\t{s.MaxTurn}\t{s.ChronoDisplay}"));
         await ClipboardProvider.Handler(text);
+        CopyLabel = "COPIÉ !";
+        await Task.Delay(2000);
+        CopyLabel = "COPIER CLASSMT.";
     }
 
     [RelayCommand]
