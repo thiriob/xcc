@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,13 +15,26 @@ public partial class PilotViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasLastPilot))]
+    [NotifyPropertyChangedFor(nameof(ShowInfo))]
     private string _lastPilotNumber = "";
     [ObservableProperty] private string _lastPilotInfo = "";
     public bool HasLastPilot => !string.IsNullOrEmpty(LastPilotNumber);
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(NumberBackground))]
+    [NotifyPropertyChangedFor(nameof(ShowInfo))]
+    [NotifyPropertyChangedFor(nameof(ShowRaceComplete))]
     private bool _raceComplete;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowInfo))]
+    [NotifyPropertyChangedFor(nameof(ShowRaceComplete))]
+    [NotifyPropertyChangedFor(nameof(ShowRejected))]
+    private string _rejectedMessage = "";
+
+    public bool ShowInfo => !RaceComplete && HasLastPilot && string.IsNullOrEmpty(RejectedMessage);
+    public bool ShowRaceComplete => RaceComplete && string.IsNullOrEmpty(RejectedMessage);
+    public bool ShowRejected => !string.IsNullOrEmpty(RejectedMessage);
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(NumberBackground))]
@@ -72,9 +86,15 @@ public partial class PilotViewModel : ViewModelBase
 
         var previousEntry = _session.GetPreviousEntry(CurrentNumber);
 
-        // Pilot already completed their last lap — ignore
-        if (previousEntry.Turn >= NbrToursMax) return;
+        if (previousEntry.Turn >= NbrToursMax)
+        {
+            RejectedMessage = $"Pilote {CurrentNumber} a déjà fini";
+            CurrentNumber = "";
+            _ = ClearRejectedMessageAsync();
+            return;
+        }
 
+        RejectedMessage = "";
         CurrentTurns = previousEntry.Turn + 1;
         _session.AddEntry(CurrentNumber, CurrentTurns);
 
@@ -111,4 +131,10 @@ public partial class PilotViewModel : ViewModelBase
 
     [RelayCommand]
     private void CancelFinish() => IsConfirmingEnd = false;
+
+    private async Task ClearRejectedMessageAsync()
+    {
+        await Task.Delay(2000);
+        RejectedMessage = "";
+    }
 }

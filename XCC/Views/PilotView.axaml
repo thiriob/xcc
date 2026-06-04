@@ -97,24 +97,29 @@
       <Border Grid.Row="1" Margin="6,0,6,4" CornerRadius="8" Background="#222222" Padding="12,0">
         <Grid ColumnDefinitions="*,Auto">
 
-          <!-- Left: prev pilot info while racing, race-complete message at end -->
-          <StackPanel Grid.Column="0" IsVisible="{Binding !RaceComplete}"
+          <!-- Left: prev pilot info / race-complete message / rejected pilot -->
+          <StackPanel Grid.Column="0" IsVisible="{Binding ShowInfo}"
                       Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
             <TextBlock Text="{Binding LastPilotNumber}"
                        FontSize="16" FontWeight="Bold" Foreground="White"
-                       VerticalAlignment="Center"
-                       IsVisible="{Binding HasLastPilot}"/>
+                       VerticalAlignment="Center"/>
             <TextBlock Text="{Binding LastPilotInfo}"
                        FontSize="13" Foreground="#80FFFFFF"
-                       VerticalAlignment="Center"
-                       IsVisible="{Binding HasLastPilot}"/>
+                       VerticalAlignment="Center"/>
           </StackPanel>
 
           <TextBlock Grid.Column="0"
-                     IsVisible="{Binding RaceComplete}"
+                     IsVisible="{Binding ShowRaceComplete}"
                      Text="PASSAGES FINAUX — Course terminée"
                      Foreground="#FF6D00"
                      FontSize="13" FontWeight="Bold" LetterSpacing="1"
+                     VerticalAlignment="Center"/>
+
+          <TextBlock Grid.Column="0"
+                     IsVisible="{Binding ShowRejected}"
+                     Text="{Binding RejectedMessage}"
+                     Foreground="#FF4444"
+                     FontSize="13" FontWeight="Bold"
                      VerticalAlignment="Center"/>
 
           <!-- Right: finish button -->
